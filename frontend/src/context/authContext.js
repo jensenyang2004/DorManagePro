@@ -40,17 +40,20 @@ export const AuthProvider = ({ children }) => {
     const login = async (student_id, ssn) => {
         try {
             // Make POST request to backend to authenticate the user
+            // console.log('開始發送登入請求...');
             const response = await fetch('http://localhost:8888/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include', // Important for sending cookies (JWT token)
                 body: JSON.stringify({ student_id, ssn }), // Sending data to backend
             });
+            // 新增：記錄響應狀態
+            // console.log('Response status:', response.status);
     
             if (response.ok) {
                 // If login is successful, process the response
                 const userData = await response.json();
-    
+                console.log(userData);
                 // Optionally, trigger authentication check to load user data
                 await checkAuthentication();
     

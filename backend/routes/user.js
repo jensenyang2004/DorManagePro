@@ -1,46 +1,47 @@
 const express = require('express');
 const router = express.Router();
 
-const db = require('../models/index'); // Drizzle DB 連接
+const { getDb } = require('../models/index');
 const { user,  bed } = require('../models/schema'); // Schema
 
-router.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  try {
-    // 查詢用戶
-    const user = await db
-      .select({
-        ssn: user.ssn,
-        username: user.studentId,
-        password: user.ssn,
-      })
-      .from(user)
-      .where(user.studentId.eq(username))
-      .limit(1);
+// router.post('/login', async (req, res) => {
+//   const { username, password } = req.body;
+//   try {
+//     // 查詢用戶
+//     const user = await db
+//       .select({
+//         ssn: user.ssn,
+//         username: user.studentId,
+//         password: user.ssn,
+//       })
+//       .from(user)
+//       .where(user.studentId.eq(username))
+//       .limit(1);
 
-    console.log(user)
-    if (user.length === 0 || user[0].password !== password) {
-      return res.status(401).json({ error: 'Invalid username or password' });
-    }
+//     console.log(user)
+//     if (user.length === 0 || user[0].password !== password) {
+//       return res.status(401).json({ error: 'Invalid username or password' });
+//     }
 
-    console.log(user.ssn)
+//     console.log(user.ssn)
 
-    // 生成會話令牌
-    const token = `session-${Date.now()}-${Math.random()}`;
-    await db.update(user)
-      .set({ sessionToken: token })
-      .where(user.ssn.eq(user[0].ssn));
+//     // 生成會話令牌
+//     const token = `session-${Date.now()}-${Math.random()}`;
+//     await db.update(user)
+//       .set({ sessionToken: token })
+//       .where(user.ssn.eq(user[0].ssn));
 
-    res.status(200).json({ message: 'Login successful', token });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+//     res.status(200).json({ message: 'Login successful', token });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
 
 
 // 根據 student_id 和 room_id 搜尋學生
 router.get('/student_search', async (req, res) => {
   try {
+    const db = getDb();
     const { student_id, room_id } = req.query;
     const result = await db
       .select({
@@ -70,6 +71,7 @@ router.get('/student_search', async (req, res) => {
  
 router.get('/dorm_change_request', async (req, res) => {
   try {
+    const db = getDb();
     const { username, student_id } = req.query;
     const result = await db
       .select({

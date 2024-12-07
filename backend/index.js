@@ -12,11 +12,11 @@ const app = express();
 const secretKey = process.env.JWT_SECRET || 'your_very_secure_and_long_secret_key';
 
 
-app.use(cors({
-  origin: 'http://localhost:3000',  // Frontend's URL
-  credentials: true
-}));
-
+// app.use(cors({
+//   origin: 'http://localhost:3000',  // Frontend's URL
+//   credentials: true
+// }));
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 

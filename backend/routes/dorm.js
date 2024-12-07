@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // Database models/schema
-const db = require('../models/index'); // Drizzle DB 連接
+const { getDb } = require('../models/index'); // 正確導入 getDb 函數
 const { facility, bookRecord, snackRecord, snackOption } = require('../models/schema'); // Schema
 
 
@@ -10,6 +10,7 @@ const { facility, bookRecord, snackRecord, snackOption } = require('../models/sc
 
 router.get('/dorm_facility', async (req, res) => {
   try {
+    const db = getDb();
     const facilities = await db.select().from(facility);
     res.json(facilities);
   } catch (err) {
@@ -17,10 +18,18 @@ router.get('/dorm_facility', async (req, res) => {
   }
 });
 
+router.get('/dorm_facility/:dorm_id', async (req, res) => {
+  const { dorm_id } = req.params;
+  const db = getDb();
+  const facilities = await db.select().from(facility).where(facility.dormId.eq(dorm_id));
+  res.json(facilities);
+});
+
 
 // Facility Schedule - 獲取設施預約情況
 router.get('/facility_schedule', async (req, res) => {
   try {
+    const db = getDb();
     const { facility_id } = req.query;
     const reservations = await db
       .select()
@@ -39,6 +48,7 @@ router.post('/snack_announcement', async (req, res) => {
   const { semester, dorm_id, snack_name } = req.body;
 
   try {
+    const db = getDb();
     // 新增零食選項
     await db.insert(snackOption).values({
       semester,
@@ -56,6 +66,7 @@ router.post('/snack_announcement', async (req, res) => {
 router.get('/snack_reservation_status', async (req, res) => {
   try {
     const { semester, dorm_id, snack_name } = req.query;
+    const db = getDb();
     const result = await db
       .select({
         snack_name: snackOption.sName,
